@@ -18,16 +18,16 @@ type SuffixOptions = BaseOptions & {
 
 export type FormatKRWOptions = NonPrefixOrSuffixOptions | PrefixOptions | SuffixOptions;
 
-export function formatKRW(price: number, options: FormatKRWOptions) {
-  if (price === 0 && options.formatZero != null) {
+export function formatKRW(price: number, options?: FormatKRWOptions) {
+  if (price === 0 && options?.formatZero != null) {
     return options.formatZero;
   }
 
-  if (options.type === "prefix") {
+  if (options?.type === "prefix") {
     return `${options.prefix}${price.toLocaleString()}`;
   }
 
-  if (options.type === "suffix") {
+  if (options?.type === "suffix") {
     return `${price.toLocaleString()}${options.suffix}`;
   }
 

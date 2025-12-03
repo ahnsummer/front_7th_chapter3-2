@@ -1,8 +1,5 @@
-import { CartItem, Product } from "../../../../types";
+import { CartItem } from "../../../../types";
 
-export const getRemainingStock = (product: Product, cart: CartItem[]): number => {
-  const cartItem = cart.find((item) => item.product.id === product.id);
-  const remaining = product.stock - (cartItem?.quantity || 0);
-
-  return remaining;
+export const getRemainingStock = (cartItem: CartItem): number => {
+  return cartItem.product.stock - (cartItem?.quantity || 0);
 };

@@ -1,14 +1,13 @@
-import { CartItem } from "../../../../types";
 import { ProductWithUI } from "../../../App";
+import { CartService } from "../../../domains/cart/hooks/useCart";
+import { addNotification } from "../../../domains/notifications/utils/addNotification";
 import { formatProductPrice } from "../../../domains/products/utils/formatProductPrice";
-import { getRemainingStock } from "../../../domains/products/utils/getRemainingStock";
 
 type ProductListSectionProps = {
   productAmount: number;
   filteredProducts: ProductWithUI[];
   debouncedSearchTerm: string;
-  cart: CartItem[];
-  onAddToCart: (product: ProductWithUI) => void;
+  cart: CartService;
 };
 
 export function ProductListSection({
@@ -16,7 +15,6 @@ export function ProductListSection({
   filteredProducts,
   debouncedSearchTerm,
   cart,
-  onAddToCart,
 }: ProductListSectionProps) {
   return (
     <div className="lg:col-span-3">
@@ -35,7 +33,8 @@ export function ProductListSection({
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredProducts.map((product) => {
-              const remainingStock = getRemainingStock(product, cart);
+              const cartItem = cart.getItemByProductId(product.id);
+              const remainingStock = cartItem?.remainingStock ?? product.stock;
 
               return (
                 <div
@@ -114,7 +113,31 @@ export function ProductListSection({
 
                     {/* 장바구니 버튼 */}
                     <button
-                      onClick={() => onAddToCart(product)}
+                      onClick={() => {
+                        if (remainingStock <= 0) {
+                          addNotification("재고가 부족합니다!", "error");
+                          return;
+                        }
+
+                        if (cartItem == null) {
+                          cart.addItem(product);
+                          addNotification("장바구니에 담았습니다", "success");
+                          return;
+                        }
+
+                        const success = cartItem.updateQuantity(
+                          cartItem.quantity + 1
+                        );
+
+                        if (success) {
+                          addNotification("장바구니에 담았습니다", "success");
+                        } else {
+                          addNotification(
+                            `재고는 ${product.stock}개까지만 있습니다.`,
+                            "error"
+                          );
+                        }
+                      }}
                       disabled={remainingStock <= 0}
                       className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
                         remainingStock <= 0

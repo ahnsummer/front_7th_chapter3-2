@@ -1,14 +1,37 @@
+import { useEffect, useState } from "react";
 import { Notification } from "../../../App";
+import { AddNotificationEvent } from "../types/AddNotificationEvent";
 
-type NotificationAreaProps = {
-  notifications: Notification[];
-  onCloseNofication: (id: string) => void;
-};
+export function NotificationArea() {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
-export function NotificationArea({
-  notifications,
-  onCloseNofication,
-}: NotificationAreaProps) {
+  useEffect(() => {
+    const controller = new AbortController();
+
+    window.addEventListener(
+      "notification:add",
+      (_event) => {
+        const event = _event as CustomEvent<AddNotificationEvent>;
+        const { message, type } = event.detail;
+
+        const id = Date.now().toString();
+
+        setNotifications((prev) => [...prev, { id, message, type }]);
+
+        setTimeout(() => {
+          setNotifications((prev) => prev.filter((n) => n.id !== id));
+        }, 3000);
+      },
+      {
+        signal: controller.signal,
+      }
+    );
+
+    return () => {
+      controller.abort();
+    };
+  }, [notifications]);
+
   return (
     <>
       {notifications.length > 0 && (
@@ -25,7 +48,11 @@ export function NotificationArea({
               }`}>
               <span className="mr-2">{notif.message}</span>
               <button
-                onClick={() => onCloseNofication(notif.id)}
+                onClick={() =>
+                  setNotifications((prev) =>
+                    prev.filter((n) => n.id !== notif.id)
+                  )
+                }
                 className="text-white hover:text-gray-200">
                 <svg
                   className="w-4 h-4"

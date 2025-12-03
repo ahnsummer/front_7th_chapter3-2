@@ -1,6 +1,9 @@
 import { Coupon } from "../../../../../types";
+import { CartService } from "../../../../domains/cart/hooks/useCart";
+import { addNotification } from "../../../../domains/notifications/utils/addNotification";
 
 type CouponSectionProps = {
+  cart: CartService;
   coupons: Coupon[];
   selectedCoupon: Coupon | null;
   onApplyCoupon: (coupon: Coupon) => void;
@@ -8,6 +11,7 @@ type CouponSectionProps = {
 };
 
 export function CouponSection({
+  cart,
   coupons,
   selectedCoupon,
   onApplyCoupon,
@@ -27,8 +31,26 @@ export function CouponSection({
           value={selectedCoupon?.code || ""}
           onChange={(e) => {
             const coupon = coupons.find((c) => c.code === e.target.value);
-            if (coupon) onApplyCoupon(coupon);
-            else onRemoveCoupon();
+
+            if (coupon == null) {
+              onRemoveCoupon();
+              return;
+            }
+
+            if (
+              cart.purchaseInfo.discountedTotalPrice < 10_000 &&
+              coupon.discountType === "percentage"
+            ) {
+              addNotification(
+                "percentage 쿠폰은 10,000원 이상 구매 시 사용 가능합니다.",
+                "error"
+              );
+              return;
+            }
+
+            onApplyCoupon(coupon);
+
+            addNotification("쿠폰이 적용되었습니다.", "success");
           }}>
           <option value="">쿠폰 선택</option>
           {coupons.map((coupon) => (
