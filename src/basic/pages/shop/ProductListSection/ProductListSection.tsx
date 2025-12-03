@@ -19,7 +19,9 @@ export function ProductListSection({
       <section>
         <div className="mb-6 flex justify-between items-center">
           <h2 className="text-2xl font-semibold text-gray-800">전체 상품</h2>
-          <div className="text-sm text-gray-600">총 {products.filteredList.length}개 상품</div>
+          <div className="text-sm text-gray-600">
+            총 {products.filteredList.length}개 상품
+          </div>
         </div>
         {products.filteredList.length === 0 ? (
           <div className="text-center py-12">
@@ -32,6 +34,13 @@ export function ProductListSection({
             {products.filteredList.map((product) => {
               const cartItem = cart.getById(product.id);
               const remainingStock = cartItem?.remainingStock ?? product.stock;
+
+              console.log(
+                "remainingStock",
+                product.id,
+                product.name,
+                remainingStock
+              );
 
               return (
                 <div

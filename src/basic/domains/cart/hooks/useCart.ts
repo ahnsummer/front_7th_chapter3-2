@@ -41,11 +41,15 @@ export type CartService = {
 export function useCart(): CartService {
   const [cart, setCart] = useLocalStorage<CartItem[]>("cart", []);
 
+  // useEffect(() => {
+  //   if (cart.length === 0) {
+  //     localStorage.removeItem("cart");
+  //   }
+  // }, [cart]);
+
   useEffect(() => {
-    if (cart.length === 0) {
-      localStorage.removeItem("cart");
-    }
-  }, [cart]);
+    console.log("cart", cart);
+  }, []);
 
   const hasBulkPurchase = cart.some((item) => item.quantity >= 10);
 

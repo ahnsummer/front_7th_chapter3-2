@@ -22,6 +22,14 @@ export function useLocalStorage<T>(
     window.addEventListener(
       "storage",
       (event) => {
+        if (
+          event.key === null &&
+          event.newValue === null &&
+          event.oldValue === null
+        ) {
+          setValue(initialValue);
+        }
+
         if (event.key === key && event.newValue != null) {
           setValue(JSON.parse(event.newValue));
         }

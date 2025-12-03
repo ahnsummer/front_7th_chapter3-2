@@ -14,7 +14,9 @@ export function NotificationArea() {
         const event = _event as CustomEvent<AddNotificationEvent>;
         const { message, type } = event.detail;
 
-        const id = Date.now().toString();
+        const id = `${Date.now().toString()}-${Math.random()
+          .toString(36)
+          .substring(2, 15)}`;
 
         setNotifications((prev) => [...prev, { id, message, type }]);
 
