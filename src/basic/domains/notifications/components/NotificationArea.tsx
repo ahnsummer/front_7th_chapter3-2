@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Notification } from "../../../App";
+import { Notification } from "../types/Notification";
 import { AddNotificationEvent } from "../types/AddNotificationEvent";
 
 export function NotificationArea() {

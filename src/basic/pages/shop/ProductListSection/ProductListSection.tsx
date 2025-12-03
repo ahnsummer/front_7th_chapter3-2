@@ -1,19 +1,16 @@
-import { ProductWithUI } from "../../../App";
 import { CartService } from "../../../domains/cart/hooks/useCart";
 import { addNotification } from "../../../domains/notifications/utils/addNotification";
+import { ProductsService } from "../../../domains/products/hooks/useProducts";
+import { ProductWithUI } from "../../../domains/products/types/ProductWithUI";
 import { formatProductPrice } from "../../../domains/products/utils/formatProductPrice";
 
 type ProductListSectionProps = {
-  productAmount: number;
-  filteredProducts: ProductWithUI[];
-  debouncedSearchTerm: string;
+  products: ProductsService;
   cart: CartService;
 };
 
 export function ProductListSection({
-  productAmount,
-  filteredProducts,
-  debouncedSearchTerm,
+  products,
   cart,
 }: ProductListSectionProps) {
   return (
@@ -22,18 +19,18 @@ export function ProductListSection({
       <section>
         <div className="mb-6 flex justify-between items-center">
           <h2 className="text-2xl font-semibold text-gray-800">전체 상품</h2>
-          <div className="text-sm text-gray-600">총 {productAmount}개 상품</div>
+          <div className="text-sm text-gray-600">총 {products.filteredList.length}개 상품</div>
         </div>
-        {filteredProducts.length === 0 ? (
+        {products.filteredList.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500">
-              "{debouncedSearchTerm}"에 대한 검색 결과가 없습니다.
+              "{products.searchTerm}"에 대한 검색 결과가 없습니다.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredProducts.map((product) => {
-              const cartItem = cart.getItemByProductId(product.id);
+            {products.filteredList.map((product) => {
+              const cartItem = cart.getById(product.id);
               const remainingStock = cartItem?.remainingStock ?? product.stock;
 
               return (
@@ -85,9 +82,7 @@ export function ProductListSection({
                     {/* 가격 정보 */}
                     <div className="mb-3">
                       <p className="text-lg font-bold text-gray-900">
-                        {formatProductPrice(product.price, product.id, {
-                          products: filteredProducts,
-                        })}
+                        {product.priceLabel("₩{price}")}
                       </p>
                       {product.discounts.length > 0 && (
                         <p className="text-xs text-gray-500">

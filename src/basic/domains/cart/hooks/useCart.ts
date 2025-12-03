@@ -8,7 +8,7 @@ import { applyCouponToTotalPrice } from "../utils/applyCoupon";
 import { calculateItemTotalPrice } from "../utils/calculateItemTotal";
 import { getRemainingStock } from "../../products/utils/getRemainingStock";
 
-type CartItemMetadata = CartItem & {
+type CartItemInstance = CartItem & {
   totalPrice: number;
   discountRate: number;
   remainingStock: number;
@@ -18,7 +18,7 @@ type CartItemMetadata = CartItem & {
 };
 
 export type CartService = {
-  list: CartItemMetadata[];
+  list: CartItemInstance[];
   hasBulkPurchase: boolean;
   totalItemCount: number;
   purchaseInfo: {
@@ -28,7 +28,7 @@ export type CartService = {
   };
   selectedCoupon: Coupon | null;
 
-  getItemByProductId: (productId: string) => CartItemMetadata | undefined;
+  getById: (productId: string) => CartItemInstance | undefined;
 
   addItem: (product: Product) => void;
 
@@ -42,19 +42,16 @@ export function useCart(): CartService {
   const [cart, setCart] = useLocalStorage<CartItem[]>("cart", []);
 
   useEffect(() => {
-    if (cart.length > 0) {
-      localStorage.setItem("cart", JSON.stringify(cart));
-      return;
+    if (cart.length === 0) {
+      localStorage.removeItem("cart");
     }
-
-    localStorage.removeItem("cart");
   }, [cart]);
 
   const hasBulkPurchase = cart.some((item) => item.quantity >= 10);
 
   const totalItemCount = sumBy(cart, (item) => item.quantity);
 
-  const cartMetadata: CartItemMetadata[] = cart.map((item, idx) => {
+  const cartInstance: CartItemInstance[] = cart.map((item, idx) => {
     return {
       ...item,
       totalPrice: calculateItemTotalPrice(item, hasBulkPurchase),
@@ -109,7 +106,7 @@ export function useCart(): CartService {
   });
 
   const getItemByProductId = (productId: string) => {
-    return cartMetadata.find((item) => item.product.id === productId);
+    return cartInstance.find((item) => item.product.id === productId);
   };
 
   const addItem = (product: Product) => {
@@ -134,12 +131,12 @@ export function useCart(): CartService {
   };
 
   return {
-    list: cartMetadata,
+    list: cartInstance,
     hasBulkPurchase,
     totalItemCount,
     purchaseInfo,
     selectedCoupon,
-    getItemByProductId,
+    getById: getItemByProductId,
     addItem,
     selectCoupon,
     clearCoupon,

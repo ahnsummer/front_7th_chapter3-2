@@ -1,4 +1,3 @@
-import { CartItem } from "../../../../../types";
 import { CartService } from "../../../../domains/cart/hooks/useCart";
 import { addNotification } from "../../../../domains/notifications/utils/addNotification";
 
