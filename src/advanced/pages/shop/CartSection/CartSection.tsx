@@ -28,6 +28,40 @@ export function CartSection() {
     onDelete: () => item.delete(),
   }));
 
+  const handleSelectCoupon = (code: string) => {
+    const coupon = coupons.getByCode(code);
+    if (coupon == null) {
+      cart.clearCoupon();
+      return;
+    }
+
+    if (
+      cart.purchaseInfo.discountedTotalPrice < 10_000 &&
+      coupon.discountType === "percentage"
+    ) {
+      addNotification(
+        "percentage 쿠폰은 10,000원 이상 구매 시 사용 가능합니다.",
+        "error"
+      );
+      return;
+    }
+
+    cart.selectCoupon(coupon);
+    addNotification("쿠폰이 적용되었습니다.", "success");
+  };
+
+  const handleRemoveCoupon = () => {
+    cart.clearCoupon();
+  };
+
+  const handlePurchase = () => {
+    const orderNumber = cart.purchase();
+    addNotification(
+      `주문이 완료되었습니다. 주문번호: ${orderNumber}`,
+      "success"
+    );
+  };
+
   return (
     <div className="lg:col-span-1">
       <div className="sticky top-24 space-y-4">
@@ -44,40 +78,14 @@ export function CartSection() {
               }))}
               selectedCouponCode={cart.selectedCoupon?.code || ""}
               discountedTotalPrice={cart.purchaseInfo.discountedTotalPrice}
-              onSelectCoupon={(code) => {
-                const coupon = coupons.getByCode(code);
-                if (coupon == null) {
-                  cart.clearCoupon();
-                  return;
-                }
-
-                if (
-                  cart.purchaseInfo.discountedTotalPrice < 10_000 &&
-                  coupon.discountType === "percentage"
-                ) {
-                  addNotification(
-                    "percentage 쿠폰은 10,000원 이상 구매 시 사용 가능합니다.",
-                    "error"
-                  );
-                  return;
-                }
-
-                cart.selectCoupon(coupon);
-                addNotification("쿠폰이 적용되었습니다.", "success");
-              }}
-              onRemoveCoupon={() => cart.clearCoupon()}
+              onSelectCoupon={handleSelectCoupon}
+              onRemoveCoupon={handleRemoveCoupon}
             />
             <PurchaseSection
               originalTotalPrice={cart.purchaseInfo.originalTotalPrice}
               discountAmount={cart.purchaseInfo.discountAmount}
               discountedTotalPrice={cart.purchaseInfo.discountedTotalPrice}
-              onPurchase={() => {
-                const orderNumber = cart.purchase();
-                addNotification(
-                  `주문이 완료되었습니다. 주문번호: ${orderNumber}`,
-                  "success"
-                );
-              }}
+              onPurchase={handlePurchase}
             />
           </>
         )}
