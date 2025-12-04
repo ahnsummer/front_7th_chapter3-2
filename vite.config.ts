@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 
 const base =
-  process.env.NODE_ENV === "production" ? "/frontend_7th_chapter3-2/" : "/";
+  process.env.NODE_ENV === "production" ? "/front_7th_chapter3-2/" : "/";
 
 export default mergeConfig(
   defineConfig({
